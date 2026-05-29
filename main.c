@@ -9,8 +9,8 @@
 //
 // DEFINES
 //
-#define TAM_BUFFER_DAC     200
-#define TAM_BUFFER_ADC     200
+#define TAM_BUFFER_DAC     50
+#define TAM_BUFFER_ADC     50
 
 //
 // Buffers
@@ -88,7 +88,7 @@ Interrupt_enableMaster();
         //
         // Recebe vetor enviado pelo Python
         //
-        if(g_prot_header.cmd == CMD_RECEIVE_INT)
+      if(g_prot_header.cmd == CMD_RECEIVE_INT)
         {
             for(i = 0; i < TAM_BUFFER_DAC; i++)
             {
@@ -109,6 +109,7 @@ Interrupt_enableMaster();
         //
         if(adc_done)
         {
+            
             for(i = 0; i < TAM_BUFFER_ADC; i++)
             {
                 protocolSendInt(
@@ -118,13 +119,16 @@ Interrupt_enableMaster();
             }
 
             adc_done = 0;
+            
         }
+        
     }
 }
 
 //
 // ISR ADC
 //
+
 __interrupt void INT_ADC0_1_ISR(void)
 {
     static uint16_t cnt_adc = 0;
@@ -173,6 +177,7 @@ __interrupt void INT_myCPUTIMER1_ISR(void)
     }
 }
 
+
 //
 // ISR SCI RX
 //
@@ -204,6 +209,19 @@ __interrupt void INT_mySCI0_RX_ISR(void)
             CMD_NONE;
     }
 
+    //
+    // LIMPA FLAG DO SCI
+    //
+    SCI_clearInterruptStatus(
+        mySCI0_BASE,
+        SCI_INT_RXFF
+    );
+
+    SCI_clearOverflowStatus(mySCI0_BASE);
+
+    //
+    // ACK DO PIE
+    //
     Interrupt_clearACKGroup(
         INT_mySCI0_RX_INTERRUPT_ACK_GROUP
     );

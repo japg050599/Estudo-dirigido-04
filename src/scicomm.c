@@ -2,7 +2,7 @@
  * scicomm.c
  *
  *  Created on: 13 de jun de 2025
- *      Author: Guilherme Márcio Soares
+ *      Author: Guilherme Mï¿½rcio Soares
  */
 #include "board.h"
 #include "device.h"
