@@ -54,10 +54,7 @@ void main(void)
 
     Interrupt_enable(INT_mySCI0_RX);
 
-    SCI_enableInterrupt(
-    mySCI0_BASE,
-    SCI_INT_RXFF
-    );
+    SCI_enableInterrupt(mySCI0_BASE, SCI_INT_RXFF);
 
 Interrupt_enableMaster();
 
@@ -98,10 +95,7 @@ Interrupt_enableMaster();
 
             g_prot_header.cmd = CMD_NONE;
 
-            SCI_clearInterruptStatus(
-                mySCI0_BASE,
-                SCI_INT_RXFF
-            );
+            SCI_clearInterruptStatus(mySCI0_BASE, SCI_INT_RXFF);
         }
 
         //
@@ -112,10 +106,7 @@ Interrupt_enableMaster();
             
             for(i = 0; i < TAM_BUFFER_ADC; i++)
             {
-                protocolSendInt(
-                    mySCI0_BASE,
-                    adc_buffer[i]
-                );
+                protocolSendInt(mySCI0_BASE, adc_buffer[i]);
             }
 
             adc_done = 0;
@@ -133,11 +124,7 @@ __interrupt void INT_ADC0_1_ISR(void)
 {
     static uint16_t cnt_adc = 0;
 
-    adc_buffer[cnt_adc] =
-        ADC_readResult(
-            ADC0_RESULT_BASE,
-            ADC0_SOC0
-        );
+    adc_buffer[cnt_adc] = ADC_readResult(ADC0_RESULT_BASE, ADC0_SOC0);
 
     cnt_adc++;
 
@@ -147,14 +134,9 @@ __interrupt void INT_ADC0_1_ISR(void)
         adc_done = 1;
     }
 
-    ADC_clearInterruptStatus(
-        ADC0_BASE,
-        ADC_INT_NUMBER1
-    );
+    ADC_clearInterruptStatus(ADC0_BASE, ADC_INT_NUMBER1);
 
-    Interrupt_clearACKGroup(
-        INT_ADC0_1_INTERRUPT_ACK_GROUP
-    );
+    Interrupt_clearACKGroup(INT_ADC0_1_INTERRUPT_ACK_GROUP);
 }
 
 //
@@ -164,10 +146,7 @@ __interrupt void INT_myCPUTIMER1_ISR(void)
 {
     static uint16_t cnt_dac = 0;
 
-    DAC_setShadowValue(
-        DAC0_BASE,
-        dac_buffer[cnt_dac]
-    );
+    DAC_setShadowValue(DAC0_BASE, dac_buffer[cnt_dac]);
 
     cnt_dac++;
 
@@ -186,43 +165,30 @@ __interrupt void INT_mySCI0_RX_ISR(void)
     uint16_t header[PROTOCOL_HEADER_SIZE];
     uint16_t cmd;
 
-    SCI_readCharArray(
-        mySCI0_BASE,
-        header,
-        PROTOCOL_HEADER_SIZE
-    );
+    SCI_readCharArray(mySCI0_BASE, header, PROTOCOL_HEADER_SIZE);
 
     cmd = header[0];
 
-    g_prot_header.data_len =
-        header[1] |
-        (header[2] << 8);
+    g_prot_header.data_len = header[1] | (header[2] << 8);
 
     if(cmd < CMD_COUNT)
     {
-        g_prot_header.cmd =
-            (SCI_Command_e)cmd;
+        g_prot_header.cmd = (SCI_Command_e)cmd;
     }
     else
     {
-        g_prot_header.cmd =
-            CMD_NONE;
+        g_prot_header.cmd = CMD_NONE;
     }
 
     //
     // LIMPA FLAG DO SCI
     //
-    SCI_clearInterruptStatus(
-        mySCI0_BASE,
-        SCI_INT_RXFF
-    );
+    SCI_clearInterruptStatus(mySCI0_BASE, SCI_INT_RXFF);
 
     SCI_clearOverflowStatus(mySCI0_BASE);
 
     //
     // ACK DO PIE
     //
-    Interrupt_clearACKGroup(
-        INT_mySCI0_RX_INTERRUPT_ACK_GROUP
-    );
+    Interrupt_clearACKGroup(INT_mySCI0_RX_INTERRUPT_ACK_GROUP);
 }
